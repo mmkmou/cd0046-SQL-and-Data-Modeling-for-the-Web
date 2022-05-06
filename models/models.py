@@ -1,14 +1,16 @@
+from tracemalloc import start
 from flask_sqlalchemy import SQLAlchemy
-from models_enum import *
+from sqlalchemy import null
+from models.models_enum import *
 
 
 #----------------------------------------------------------------------------#
 # Models.
 #----------------------------------------------------------------------------#
 
+
+
 db = SQLAlchemy()
-
-
 
 #----------------------------------------------------------------------------#
 # Venue Models.
@@ -28,6 +30,7 @@ class Venue(db.Model):
     website_link = db.Column(db.String(120))
     seeking_talent = db.Column(db.Boolean())
     seeking_description = db.Column(db.Text())
+    artists = db.relationship("Show", back_populates="venue")
 
 
 #----------------------------------------------------------------------------#
@@ -47,6 +50,22 @@ class Artist(db.Model):
     website_link = db.Column(db.String(120))
     seeking_venue = db.Column(db.Boolean())
     seeking_description = db.Column(db.Text())
+    venues = db.relationship("Show", back_populates="artist")
     
+#----------------------------------------------------------------------------#
+# Show Models.
+#----------------------------------------------------------------------------#
+class Show(db.Model):
+    __tablename__ = 'Show'
 
+    id = db.Column(db.Integer, primary_key=True)
+    artist_id = db.Column(db.Integer, db.ForeignKey('Artist.id'), nullable=False)
+    venue_id = db.Column(db.Integer, db.ForeignKey('Venue.id'), nullable=False)
+    start_time = db.Column(db.DateTime, nullable=False)
+    venue = db.relationship("Venue", back_populates="artists")
+    artist = db.relationship("Artist", back_populates="venues")
+    __table_args__ = (db.UniqueConstraint('artist_id', 'venue_id', 'start_time'),
+                     )
+
+    
 # TODO Implement Show and Artist models, and complete all model relationships and properties, as a database
