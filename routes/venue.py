@@ -1,7 +1,7 @@
 from flask import Blueprint
 from controllers.VenueController import *
 
-venue = Blueprint('', __name__)
+venue = Blueprint('venue', __name__)
 
 venue.route('/')(venues)
 venue.route('/search', methods=['POST'])(search_venues)
