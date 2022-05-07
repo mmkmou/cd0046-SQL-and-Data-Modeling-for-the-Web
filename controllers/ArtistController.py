@@ -2,19 +2,11 @@ from flask import Flask, render_template, request, Response, flash, redirect, ur
 from models.models import Artist
 from forms import *
 
-
+# Artist List controller
+# This function return all artist
+#----------------------------------------------------------------------------#
 def artists():
-  # TODO: replace with real data returned from querying the database
-  data=[{
-    "id": 4,
-    "name": "Guns N Petals",
-  }, {
-    "id": 5,
-    "name": "Matt Quevedo",
-  }, {
-    "id": 6,
-    "name": "The Wild Sax Band",
-  }]
+  data  = Artist.query.with_entities(Artist.id, Artist.name).all()
   return render_template('pages/artists.html', artists=data)
 
 def search_artists():

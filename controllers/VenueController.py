@@ -6,7 +6,9 @@ from datetime import date
 from models.models import Show, Venue, db
 from forms import *
 
-
+# Venues List controller
+# This function return all venues group by city and State
+#----------------------------------------------------------------------------#
 def venues():
   # Get All City And State from menu 
   #----------------------------------------------------------------------------#
