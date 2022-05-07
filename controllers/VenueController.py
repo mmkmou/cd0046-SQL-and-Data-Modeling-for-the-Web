@@ -1,33 +1,36 @@
+from itertools import count
+from ntpath import join
 from flask import Flask, render_template, request, Response, flash, redirect, url_for
-from models.models import Venue
+from sqlalchemy import and_, cast, func, Date
+from datetime import date
+from models.models import Show, Venue, db
 from forms import *
 
-def venues():
-  # TODO: replace with real venues data.
-  #       num_upcoming_shows should be aggregated based on number of upcoming shows per venue.
-  data=[{
-    "city": "San Francisco",
-    "state": "CA",
-    "venues": [{
-      "id": 1,
-      "name": "The Musical Hop",
-      "num_upcoming_shows": 0,
-    }, {
-      "id": 3,
-      "name": "Park Square Live Music & Coffee",
-      "num_upcoming_shows": 1,
-    }]
-  }, {
-    "city": "New York",
-    "state": "NY",
-    "venues": [{
-      "id": 2,
-      "name": "The Dueling Pianos Bar",
-      "num_upcoming_shows": 0,
-    }]
-  }]
-  return render_template('pages/venues.html', areas=data)
 
+def venues():
+  # Get All City And State from menu 
+  #----------------------------------------------------------------------------#
+  locations = Venue.query.with_entities(Venue.city, Venue.state).group_by(Venue.city, Venue.state).all()
+
+  data = list()
+   
+  # Return All venue by City & State 
+  #----------------------------------------------------------------------------#
+  for location in locations:
+    venues = Venue.query.with_entities(Venue.id, Venue.name, func.count(Show.id)
+      ).join(Show, and_(Show.venue_id == Venue.id, cast(Show.start_time,Date) >  date.today()), isouter=True
+      ).filter(Venue.city == location[0]
+      ).filter(Venue.state == location[1]
+      ).group_by(Venue.id, Venue.name
+      ).all()
+
+    data.append( {
+      "city": location.city,
+      "state": location.state,
+      "venues" : venues
+    })
+    
+  return render_template('pages/venues.html', areas=data)
 
 def search_venues():
   # TODO: implement search on artists with partial string search. Ensure it is case-insensitive.
