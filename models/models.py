@@ -1,14 +1,11 @@
-from tracemalloc import start
-from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import null
-from models.models_enum import *
-
-
 #----------------------------------------------------------------------------#
 # Models.
 #----------------------------------------------------------------------------#
 
-
+from sqlalchemy.ext.mutable import MutableList
+from sqlalchemy.types import ARRAY
+from flask_sqlalchemy import SQLAlchemy
+from models.models_enum import *
 
 db = SQLAlchemy()
 
@@ -25,7 +22,7 @@ class Venue(db.Model):
     address = db.Column(db.String(120), nullable=False)
     phone = db.Column(db.String(12))
     image_link = db.Column(db.String(120))
-    genres = db.Column(db.String(500), nullable=False)
+    genres = db.Column(MutableList.as_mutable(ARRAY(db.Enum(Genre))), nullable=False)
     facebook_link = db.Column(db.String(120))
     website_link = db.Column(db.String(120))
     seeking_talent = db.Column(db.Boolean())
@@ -42,10 +39,10 @@ class Artist(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, nullable=False)
     city = db.Column(db.String(120), nullable=False)
-    state = db.Column(db.String(120), nullable=False)
-    phone = db.Column(db.String(120))
-    image_link = db.Column(db.String(500))
-    genres = db.Column(db.String(120), nullable=False)
+    state = db.Column(db.Enum(State), nullable=False)
+    phone = db.Column(db.String(12))
+    image_link = db.Column(db.String(120))
+    genres = db.Column(MutableList.as_mutable(ARRAY(db.Enum(Genre))), nullable=False)
     facebook_link = db.Column(db.String(120))
     website_link = db.Column(db.String(120))
     seeking_venue = db.Column(db.Boolean())
@@ -64,8 +61,7 @@ class Show(db.Model):
     start_time = db.Column(db.DateTime, nullable=False)
     venue = db.relationship("Venue", back_populates="artists")
     artist = db.relationship("Artist", back_populates="venues")
-    __table_args__ = (db.UniqueConstraint('artist_id', 'venue_id', 'start_time'),
-                     )
+    __table_args__ = (db.UniqueConstraint('artist_id', 'venue_id', 'start_time'),)
 
     
 # TODO Implement Show and Artist models, and complete all model relationships and properties, as a database
