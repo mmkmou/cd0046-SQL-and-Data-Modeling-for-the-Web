@@ -1,5 +1,6 @@
 from itertools import count
 from ntpath import join
+from unicodedata import name
 from flask import Flask, render_template, request, Response, flash, redirect, url_for
 from sqlalchemy import and_, cast, func, Date
 from datetime import date
@@ -35,19 +36,24 @@ def venues():
     
   return render_template('pages/venues.html', areas=data)
 
+# search on artists with partial case-insensitive  string.
+# -------------------------------------------------------------------# 
 def search_venues():
-  # TODO: implement search on artists with partial string search. Ensure it is case-insensitive.
-  # seach for Hop should return "The Musical Hop".
-  # search for "Music" should return "The Musical Hop" and "Park Square Live Music & Coffee"
-  response={
-    "count": 1,
-    "data": [{
-      "id": 2,
-      "name": "The Dueling Pianos Bar",
-      "num_upcoming_shows": 0,
-    }]
+  
+  search_term = request.form.get('search_term', '')
+  search = "%{}%".format(search_term)
+  data = Venue.query.with_entities(Venue.id.label("id"), Venue.name.label("name"), func.count(Show.id).label("num_upcoming_shows")
+                ).join(Show, and_(Show.venue_id == Venue.id, cast(Show.start_time,Date) >  date.today()), isouter=True
+                ).filter(Venue.name.ilike(search)
+                ).group_by(Venue.id, Venue.name
+                ).all()
+
+
+  response = {
+    "count": len(data),
+    "data": data
   }
-  return render_template('pages/search_venues.html', results=response, search_term=request.form.get('search_term', ''))
+  return render_template('pages/search_venues.html', results=response, search_term=search_term)
 
 # Show Venue detail page controller
 #----------------------------------------------------------------------------#
@@ -60,8 +66,7 @@ def show_venue(venue_id):
                                        ).join(Artist
                                        ).filter(cast(Show.start_time,Date) <  date.today()
                                        ).all()
-
-  #print(data.__dict__)
+                                       
   data["past_shows"] = past_shows
   data["past_shows_count"] = len(past_shows)
    
@@ -84,7 +89,6 @@ def create_venue_form():
   form = VenueForm()
   return render_template('forms/new_venue.html', form=form)
 
-
 def create_venue_submission():
   # TODO: insert form data as a new Venue record in the db, instead
   # TODO: modify data to be the data object returned from db insertion
@@ -96,8 +100,6 @@ def create_venue_submission():
   # see: http://flask.pocoo.org/docs/1.0/patterns/flashing/
   return render_template('pages/home.html')
 
-
-
 def delete_venue(venue_id):
   # TODO: Complete this endpoint for taking a venue_id, and using
   # SQLAlchemy ORM to delete a record. Handle cases where the session commit could fail.
@@ -105,7 +107,6 @@ def delete_venue(venue_id):
   # BONUS CHALLENGE: Implement a button to delete a Venue on a Venue Page, have it so that
   # clicking that button delete it from the db then redirect the user to the homepage
   return None
-
 
 def edit_venue(venue_id):
   form = VenueForm()
@@ -125,7 +126,6 @@ def edit_venue(venue_id):
   }
   # TODO: populate form with values from venue with ID <venue_id>
   return render_template('forms/edit_venue.html', form=form, venue=venue)
-
 
 def edit_venue_submission(venue_id):
   # TODO: take values from the form submitted, and update existing
