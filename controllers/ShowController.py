@@ -1,7 +1,7 @@
 from tokenize import String
 from flask import Flask, render_template, request, Response, flash, redirect, url_for
 from datetime import datetime, timezone
-from models.models import Show, Venue, Artist
+from models.models import Show, Venue, Artist, db
 from forms import *
 
 # displays list of shows at /shows
@@ -24,10 +24,30 @@ def create_shows():
 def create_show_submission():
   # called to create new shows in the db, upon submitting new show listing form
   # TODO: insert form data as a new Show record in the db, instead
-
-  # on successful db insert, flash success
-  flash('Show was successfully listed!')
-  # TODO: on unsuccessful db insert, flash an error instead.
-  # e.g., flash('An error occurred. Show could not be listed.')
-  # see: http://flask.pocoo.org/docs/1.0/patterns/flashing/
+  show =  ShowForm()
+  try: 
+    if show.validate_on_submit():
+          record = Show(
+              artist_id = request.form['artist_id'],
+              venue_id = request.form['venue_id'],
+              start_time = request.form['start_time']
+          )
+          
+          db.session.add(record)
+          db.session.commit()
+          # on successful db insert, flash success
+          flash('Show was successfully listed!')
+    else:
+          for field, errors in show.errors.items():
+              for error in errors:
+                  print("Error : ", error)
+                  flash("Error in {}: {}".format(
+                      getattr(show, field).label.text,
+                      error
+                  ), 'error')
+  except Exception as error:
+    print(error)
+    flash(str(error.orig) + " for parameters" + str(error.params), 'error')
+    
   return render_template('pages/home.html')
+

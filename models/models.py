@@ -21,7 +21,7 @@ class Venue(db.Model):
     state = db.Column(db.Enum(State), nullable=False)
     address = db.Column(db.String(120), nullable=False)
     phone = db.Column(db.String(12))
-    image_link = db.Column(db.String(120))
+    image_link = db.Column(db.String(500))
     genres = db.Column(MutableList.as_mutable(ARRAY(db.Enum(Genre))), nullable=False)
     facebook_link = db.Column(db.String(120))
     website_link = db.Column(db.String(120))
@@ -41,7 +41,7 @@ class Artist(db.Model):
     city = db.Column(db.String(120), nullable=False)
     state = db.Column(db.Enum(State), nullable=False)
     phone = db.Column(db.String(12))
-    image_link = db.Column(db.String(120))
+    image_link = db.Column(db.String(500))
     genres = db.Column(MutableList.as_mutable(ARRAY(db.Enum(Genre))), nullable=False)
     facebook_link = db.Column(db.String(120))
     website_link = db.Column(db.String(120))
@@ -55,13 +55,15 @@ class Artist(db.Model):
 class Show(db.Model):
     __tablename__ = 'Show'
 
+    #id = db.Column(db.Integer, primary_key=True)
     id = db.Column(db.Integer, primary_key=True)
     artist_id = db.Column(db.Integer, db.ForeignKey('Artist.id'), nullable=False)
     venue_id = db.Column(db.Integer, db.ForeignKey('Venue.id'), nullable=False)
     start_time = db.Column(db.DateTime, nullable=False)
     venue = db.relationship("Venue", back_populates="shows")
     artist = db.relationship("Artist", back_populates="shows")
-    __table_args__ = (db.UniqueConstraint('artist_id', 'venue_id', 'start_time'),)
+    __table_args__ = (db.UniqueConstraint('artist_id', 'start_time'),db.UniqueConstraint('venue_id', 'start_time'),)
+
 
     
 # TODO Implement Show and Artist models, and complete all model relationships and properties, as a database

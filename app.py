@@ -6,6 +6,7 @@ import os
 from flask import Flask, render_template
 from flask_moment import Moment
 from flask_migrate import Migrate
+from flask_wtf.csrf import CSRFProtect
 import logging
 from logging import Formatter, FileHandler
 
@@ -20,8 +21,10 @@ from routes.show import show
 #----------------------------------------------------------------------------#
 # App Config.
 #----------------------------------------------------------------------------#
+csrf = CSRFProtect()
 
 app = Flask(__name__)
+csrf.init_app(app)
 moment = Moment(app)
 app.config.from_object('config')
 

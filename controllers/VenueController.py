@@ -2,14 +2,15 @@ from itertools import count
 from ntpath import join
 from unicodedata import name
 from flask import Flask, render_template, request, Response, flash, redirect, url_for
-from sqlalchemy import and_, cast, func, Date
+from sqlalchemy import and_, cast, func, Date, true
 from datetime import date
 from controllers.ArtistController import artists
 from models.models import Artist, Show, Venue, db
 from forms import *
+from utils import format_boolean
 
 # Venues List controller
-# This function return all venues group by city and State
+# This function return all venues group by city and State /venues
 #----------------------------------------------------------------------------#
 def venues():
   # Get All City And State from menu 
@@ -36,7 +37,7 @@ def venues():
     
   return render_template('pages/venues.html', areas=data)
 
-# search on artists with partial case-insensitive  string.
+# search on artists with partial case-insensitive  string. /venues/search
 # -------------------------------------------------------------------# 
 def search_venues():
   
@@ -85,20 +86,49 @@ def show_venue(venue_id):
   
   return render_template('pages/show_venue.html', venue=data)
 
+# Create Venue page controller [GET] /venue/create
+#----------------------------------------------------------------------------#
 def create_venue_form():
   form = VenueForm()
   return render_template('forms/new_venue.html', form=form)
 
+# Subnit Venue creation controller [POST] /venue/create 
+#----------------------------------------------------------------------------#
 def create_venue_submission():
-  # TODO: insert form data as a new Venue record in the db, instead
-  # TODO: modify data to be the data object returned from db insertion
+  venue =  VenueForm()
+  try:
+    if venue.validate_on_submit():
+          record = Venue(
+              name = request.form['name'],
+              city = request.form['city'],
+              state = request.form['state'],
+              address = request.form['address'],
+              phone = request.form['phone'],
+              image_link = request.form['image_link'],
+              genres = request.form.getlist('genres'),
+              facebook_link = request.form['facebook_link'],
+              website_link = request.form['website_link'],
+              seeking_talent = format_boolean(request.form.get('seeking_talent', 'n')),
+              seeking_description = request.form['seeking_description']
+          )
+          
+          db.session.add(record)
+          db.session.commit()
+          # on successful db insert, flash success
+          flash('Venue ' + request.form['name'] + ' was successfully added!')
+    else:
+          for field, errors in venue.errors.items():
+              for error in errors:
+                  print("Error : ", error)
+                  flash("Error in {}: {}".format(
+                      getattr(venue, field).label.text,
+                      error
+                  ), 'error')
+  except Exception as error:
+    flash(str(error.orig) + " for parameters" + str(error.params), 'error')
+    
+  return render_template('pages/home.html', )
 
-  # on successful db insert, flash success
-  flash('Venue ' + request.form['name'] + ' was successfully listed!')
-  # TODO: on unsuccessful db insert, flash an error instead.
-  # e.g., flash('An error occurred. Venue ' + data.name + ' could not be listed.')
-  # see: http://flask.pocoo.org/docs/1.0/patterns/flashing/
-  return render_template('pages/home.html')
 
 def delete_venue(venue_id):
   # TODO: Complete this endpoint for taking a venue_id, and using
@@ -131,3 +161,6 @@ def edit_venue_submission(venue_id):
   # TODO: take values from the form submitted, and update existing
   # venue record with ID <venue_id> using the new attributes
   return redirect(url_for('venue.show_venue', venue_id=venue_id))
+
+
+

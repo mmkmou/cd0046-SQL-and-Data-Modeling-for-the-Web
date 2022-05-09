@@ -62,7 +62,7 @@ class State(enum.Enum):
 # Genre Enum.
 #----------------------------------------------------------------------------#
 class Genre(enum.Enum):
-    alternative = "Alternative"
+    Alternative = "Alternative"
     Blues = "Blues"
     Classical = "Classical"
     Country = "Country"

@@ -1,8 +1,9 @@
 from datetime import date
 from flask import Flask, render_template, request, Response, flash, redirect, url_for
 from sqlalchemy import Date, and_, cast, func
-from models.models import Artist, Show, Venue
+from models.models import Artist, Show, Venue, db
 from forms import *
+from utils import format_boolean
 
 # Artist List controller
 # This function return all artist
@@ -63,20 +64,21 @@ def show_artist(artist_id):
 
 
 def edit_artist(artist_id):
+  #form = ArtistForm()
+  
+  artist = Artist.query.get_or_404(artist_id)
+  print(artist)
   form = ArtistForm()
-  artist={
-    "id": 4,
-    "name": "Guns N Petals",
-    "genres": ["Rock n Roll"],
-    "city": "San Francisco",
-    "state": "CA",
-    "phone": "326-123-5000",
-    "website": "https://www.gunsnpetalsband.com",
-    "facebook_link": "https://www.facebook.com/GunsNPetals",
-    "seeking_venue": True,
-    "seeking_description": "Looking for shows to perform at in the San Francisco Bay Area!",
-    "image_link": "https://images.unsplash.com/photo-1549213783-8284d0336c4f?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=300&q=80"
-  }
+  form.name.data = artist.name
+  form.city.data = artist.city
+  form.state.data = artist.state
+  form.phone.data = artist.phone
+  form.genres.data = artist.genres
+  form.facebook_link.data = artist.facebook_link
+  form.image_link.data = artist.image_link
+  form.website_link.data = artist.website_link
+  form.seeking_venue.data = artist.seeking_venue
+  form.seeking_description.data = artist.seeking_description
   # TODO: populate form with fields from artist with ID <artist_id>
   return render_template('forms/edit_artist.html', form=form, artist=artist)
 
@@ -91,12 +93,39 @@ def create_artist_form():
   return render_template('forms/new_artist.html', form=form)
 
 def create_artist_submission():
-  # called upon submitting the new artist listing form
-  # TODO: insert form data as a new Venue record in the db, instead
-  # TODO: modify data to be the data object returned from db insertion
 
-  # on successful db insert, flash success
-  flash('Artist ' + request.form['name'] + ' was successfully listed!')
+  artist =  ArtistForm()
+  try:
+    if artist.validate_on_submit():
+          record = Artist(
+              name = request.form['name'],
+              city = request.form['city'],
+              state = request.form['state'],
+              phone = request.form['phone'],
+              image_link = request.form['image_link'],
+              genres = request.form.getlist('genres'),
+              facebook_link = request.form['facebook_link'],
+              website_link = request.form['website_link'],
+              seeking_venue = format_boolean(request.form.get('seeking_venue', 'n')),
+              seeking_description = request.form['seeking_description']
+          )
+          
+          db.session.add(record)
+          db.session.commit()
+          # on successful db insert, flash success
+          flash('Artist ' + request.form['name'] + ' was successfully listed!')
+    else:
+          for field, errors in artist.errors.items():
+              for error in errors:
+                  print("Error : ", error)
+                  flash("Error in {}: {}".format(
+                      getattr(artist, field).label.text,
+                      error
+                  ), 'error')
+  except Exception as error:
+    flash(str(error.orig) + " for parameters" + str(error.params), 'error')
+
+  # flash('Artist ' + request.form['name'] + ' was successfully listed!')
   # TODO: on unsuccessful db insert, flash an error instead.
   # e.g., flash('An error occurred. Artist ' + data.name + ' could not be listed.')
   return render_template('pages/home.html')
