@@ -1,10 +1,11 @@
 from datetime import datetime
+from email import message
 from flask_wtf import FlaskForm
 from wtforms import StringField, SelectField, SelectMultipleField, DateTimeField, BooleanField, TextAreaField
-from wtforms.validators import DataRequired, AnyOf, URL
+from wtforms.validators import DataRequired, URL, Optional, Regexp
 from markupsafe import escape
 
-from models.models_enum import *
+from models.models_enum import State, Genre, coerce_for_enum
 
 class ShowForm(FlaskForm):
     artist_id = StringField(
@@ -35,7 +36,10 @@ class VenueForm(FlaskForm):
         'address', validators=[DataRequired()]
     )
     phone = StringField(
-        'phone'
+        'phone', validators=[
+            Optional(),
+            Regexp('^[0-9]{3}-[0-9]{3}-[0-9]{4}$', message="Invalid phone number format : xxx-xxx-xxxx")
+        ]
     )
     image_link = StringField(
         'image_link'
@@ -46,7 +50,7 @@ class VenueForm(FlaskForm):
         coerce=coerce_for_enum(Genre)
     )
     facebook_link = StringField(
-        'facebook_link', validators=[URL()]
+        'facebook_link', validators=[Optional(), URL()]
     )
     website_link = StringField(
         'website_link'
@@ -82,11 +86,11 @@ class ArtistForm(FlaskForm):
         coerce=coerce_for_enum(Genre)
      )
     facebook_link = StringField(
-        'facebook_link', validators=[URL()]
+        'facebook_link', validators=[Optional(), URL()]
      )
 
     website_link = StringField(
-        'website_link', validators=[URL()]
+        'website_link', validators=[Optional(), URL()]
      )
 
     seeking_venue = BooleanField( 'seeking_venue' )

@@ -2,7 +2,7 @@ from tokenize import String
 from flask import Flask, render_template, request, Response, flash, redirect, url_for
 from datetime import datetime, timezone
 from models.models import Show, Venue, Artist, db
-from forms import *
+from forms import ShowForm
 
 # displays list of shows at /shows
 #----------------------------------------------------------------------------#
@@ -16,14 +16,16 @@ def shows():
 
   return render_template('pages/shows.html', shows=data)
 
+# Show Create page controller 
+#----------------------------------------------------------------------------#
 def create_shows():
   # renders form. do not touch.
   form = ShowForm()
   return render_template('forms/new_show.html', form=form)
 
+# Show Create submission page controller 
+#----------------------------------------------------------------------------#
 def create_show_submission():
-  # called to create new shows in the db, upon submitting new show listing form
-  # TODO: insert form data as a new Show record in the db, instead
   show =  ShowForm()
   try: 
     if show.validate_on_submit():
@@ -40,13 +42,12 @@ def create_show_submission():
     else:
           for field, errors in show.errors.items():
               for error in errors:
-                  print("Error : ", error)
+                  
                   flash("Error in {}: {}".format(
                       getattr(show, field).label.text,
                       error
                   ), 'error')
   except Exception as error:
-    print(error)
     flash(str(error.orig) + " for parameters" + str(error.params), 'error')
     
   return render_template('pages/home.html')

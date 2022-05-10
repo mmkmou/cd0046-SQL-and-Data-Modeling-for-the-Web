@@ -5,7 +5,7 @@
 from sqlalchemy.ext.mutable import MutableList
 from sqlalchemy.types import ARRAY
 from flask_sqlalchemy import SQLAlchemy
-from models.models_enum import *
+from models.models_enum import State, Genre
 
 db = SQLAlchemy()
 
@@ -55,7 +55,6 @@ class Artist(db.Model):
 class Show(db.Model):
     __tablename__ = 'Show'
 
-    #id = db.Column(db.Integer, primary_key=True)
     id = db.Column(db.Integer, primary_key=True)
     artist_id = db.Column(db.Integer, db.ForeignKey('Artist.id'), nullable=False)
     venue_id = db.Column(db.Integer, db.ForeignKey('Venue.id'), nullable=False)
@@ -66,4 +65,3 @@ class Show(db.Model):
 
 
     
-# TODO Implement Show and Artist models, and complete all model relationships and properties, as a database

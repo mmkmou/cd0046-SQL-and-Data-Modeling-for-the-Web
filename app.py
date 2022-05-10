@@ -10,7 +10,6 @@ from flask_wtf.csrf import CSRFProtect
 import logging
 from logging import Formatter, FileHandler
 
-from forms import *
 from utils import format_datetime
 from models.models import db
 from routes.venue import venue
@@ -25,6 +24,7 @@ csrf = CSRFProtect()
 
 app = Flask(__name__)
 csrf.init_app(app)
+csrf.exempt(venue)
 moment = Moment(app)
 app.config.from_object('config')
 
@@ -82,11 +82,7 @@ if not app.debug:
 # Launch.
 #----------------------------------------------------------------------------#
 
-# Default port:
-'''
-if __name__ == '__main__':
-    app.run()
-'''
+
 # Or specify port manually:
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))

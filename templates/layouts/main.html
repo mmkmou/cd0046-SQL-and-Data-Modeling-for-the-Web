@@ -32,6 +32,8 @@
 <script src="/static/js/libs/moment.min.js"></script>
 <script type="text/javascript" src="/static/js/script.js" defer></script>
 <!--[if lt IE 9]><script src="/static/js/libs/respond-1.4.2.min.js"></script><![endif]-->
+
+
 <!-- /scripts -->
 </head>
 <body>
@@ -91,10 +93,10 @@
     <!-- Begin page content -->
     <main id="content" role="main" class="container">
 
-      {% with messages = get_flashed_messages() %}
+      {% with messages = get_flashed_messages(with_categories=true)  %}
         {% if messages %}
-          {% for message in messages %}
-            <div class="alert alert-block alert-info fade in">
+          {% for category, message in messages %}
+            <div {% if category == 'error' %} class="alert alert-block alert-danger fade in" {% else %} class="alert alert-block alert-info fade in" {% endif %}>
               <a class="close" data-dismiss="alert">&times;</a>
               {{ message }}
             </div>
@@ -119,6 +121,6 @@
   <script>window.jQuery || document.write('<script type="text/javascript" src="/static/js/libs/jquery-1.11.1.min.js"><\/script>')</script>
   <script type="text/javascript" src="/static/js/libs/bootstrap-3.1.1.min.js" defer></script>
   <script type="text/javascript" src="/static/js/plugins.js" defer></script>
-
+  
 </body>
 </html>
