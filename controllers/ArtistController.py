@@ -94,11 +94,11 @@ def edit_artist_submission(artist_id):
       # on successful db insert, flash success
       flash('Artist ' + request.form['name'] + ' was successfully updated!')
     else:
-          for field, errors in artist.errors.items():
+          for field, errors in form.errors.items():
               for error in errors:
                   
                   flash("Error in {}: {}".format(
-                      getattr(artist, field).label.text,
+                      getattr(form, field).label.text,
                       error
                   ), 'error')
   except Exception as error:
@@ -147,4 +147,4 @@ def create_artist_submission():
   except Exception as error:
     flash(str(error.orig) + " for parameters" + str(error.params), 'error')
 
-  return render_template('pages/home.html')
+  return redirect(url_for('index', ))

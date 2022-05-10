@@ -50,5 +50,5 @@ def create_show_submission():
   except Exception as error:
     flash(str(error.orig) + " for parameters" + str(error.params), 'error')
     
-  return render_template('pages/home.html')
+  return redirect(url_for('index', ))
 
