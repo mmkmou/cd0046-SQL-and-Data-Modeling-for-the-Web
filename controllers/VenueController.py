@@ -1,6 +1,6 @@
 
 from flask import render_template, request, flash, redirect, url_for
-from sqlalchemy import DateTime, and_, cast, func, Date, true
+from sqlalchemy import DateTime, and_, cast, desc, func, Date, true
 from datetime import date, datetime
 from models.models import Artist, Show, Venue, db
 from forms import VenueForm
@@ -31,8 +31,9 @@ def venues():
       "state": location.state,
       "venues" : venues
     })
-    
+
   return render_template('pages/venues.html', areas=data)
+
 
 # search on venue with partial case-insensitive  string. /venues/search
 # -------------------------------------------------------------------# 

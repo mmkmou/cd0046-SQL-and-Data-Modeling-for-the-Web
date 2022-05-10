@@ -75,7 +75,10 @@ class ArtistForm(FlaskForm):
         coerce=coerce_for_enum(State)
     )
     phone = StringField(
-        'phone'
+        'phone', validators=[
+            Optional(),
+            Regexp('^[0-9]{3}-[0-9]{3}-[0-9]{4}$', message="Invalid phone number format : xxx-xxx-xxxx")
+        ]
     )
     image_link = StringField(
         'image_link'

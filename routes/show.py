@@ -1,5 +1,5 @@
 from flask import Blueprint
-from controllers.ShowController import *
+from controllers.ShowController import shows, create_shows, create_show_submission
 
 show = Blueprint('show', __name__)
 

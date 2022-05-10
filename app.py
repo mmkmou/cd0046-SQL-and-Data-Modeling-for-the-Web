@@ -10,8 +10,10 @@ from flask_wtf.csrf import CSRFProtect
 import logging
 from logging import Formatter, FileHandler
 
+from sqlalchemy import desc
+
 from utils import format_datetime
-from models.models import db
+from models.models import db, Venue, Artist
 from routes.venue import venue
 from routes.artist import artist
 from routes.show import show
@@ -43,7 +45,9 @@ app.jinja_env.filters['datetime'] = format_datetime
 #  ----------------------------------------------------------------
 @app.route('/')
 def index():
-  return render_template('pages/home.html')
+    venues  = Venue.query.with_entities(Venue.id, Venue.name).order_by(desc(Venue.id)).limit(10).all()
+    artists  = Artist.query.with_entities(Artist.id, Artist.name).order_by(desc(Artist.id)).limit(10).all()
+    return render_template('pages/home.html', venues=venues, artists=artists)
 
 #  Venues
 #  ----------------------------------------------------------------

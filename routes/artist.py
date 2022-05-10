@@ -1,5 +1,5 @@
 from flask import Blueprint
-from controllers.ArtistController import *
+from controllers.ArtistController import artists, search_artists, show_artist, edit_artist, edit_artist_submission, create_artist_form, create_artist_submission 
 
 artist = Blueprint('artist', __name__)
 
